@@ -2,6 +2,14 @@
 
 Newest at the top. One entry per meaningful step. Move older months to `docs/devlog/DEVLOG-YYYY-MM.md`.
 
+## 2026-11-02 — Step 2: SQLite store + cache with dedupe
+
+- **Did:** `Store` Protocol, `SqliteStore` (postings, extractions, runs, daily_aggregates, search_log), URL normalisation
+  and description hashing, backup with 14-copy rotation, 9 tests.
+- **Decisions:** dedupe on URL **or** description hash. Hash dedupe only applies to descriptions over 200 chars, to avoid
+  merging distinct jobs that share a generic snippet. TTL is keyed on `first_seen`. A `search_log` table stops repeat queries.
+- **Next:** level classifier + rubric.
+
 ## 2026-11-02 — Step 1: skeleton, config loading, AGENTS.md, docs stubs
 
 - **Did:** `uv` project (`pyproject.toml`, Python ≥3.12), package layout, `config.yaml` (confirmed by owner),
