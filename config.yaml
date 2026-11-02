@@ -17,21 +17,26 @@ employment_types: ["full-time"]  # "FTE" = full-time; it's a filter, not a title
 # so "SDE 2" and "Software Engineer II" land in the same bucket.
 role_families:
   software_engineering:
+    label: "Software Engineering"
     titles: ["Software Engineer", "Software Engineer 1", "Software Engineer 2",
              "SDE 1", "SDE 2", "Junior Software Engineer", "Senior Software Engineer",
              "Software Development Engineer", "Backend Engineer", "Python Developer"]
   forward_deployed_ai:
+    label: "Forward Deployed / Applied AI"
     titles: ["AI Forward Deployed Engineer", "Forward Deployed Engineer", "FDE",
              "Forward Deployed Software Engineer", "Applied AI Engineer",
              "AI Solutions Engineer", "AI Deployment Engineer"]
   machine_learning_data_science:
+    label: "Machine Learning & Data Science"
     titles: ["Machine Learning Engineer", "MLE", "Associate Machine Learning Engineer",
              "Machine Learning Associate", "Associate Data Science Engineer", "Data Scientist", "AI Engineer",
              "GenAI Engineer", "LLM Engineer"]
   data_analytics:
+    label: "Data Analytics"
     titles: ["Data Analyst", "Data Analyst 1", "Data Analyst 2", "Associate Data Analyst",
              "Junior Data Analyst", "Business Intelligence Analyst", "Analytics Engineer"]
   devops_cloud:
+    label: "DevOps & Cloud"
     titles: ["DevOps Engineer", "DevOps Engineer 1", "DevOps Engineer 2",
              "AWS Cloud Engineer", "AWS Cloud Engineer 1", "AWS Cloud Engineer 2",
              "AWS Cloud Expert", "Cloud Engineer", "Site Reliability Engineer",

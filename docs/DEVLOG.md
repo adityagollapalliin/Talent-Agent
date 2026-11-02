@@ -2,6 +2,18 @@
 
 Newest at the top. One entry per meaningful step. Move older months to `docs/devlog/DEVLOG-YYYY-MM.md`.
 
+## 2026-11-02 — Step 6: aggregation + markdown report
+
+- **Did:** `report/aggregate.py` (buckets, shares, 7/30-day baselines with a bucket-size sentinel, arrows, risers,
+  focus table, location split, market certifications), `report/prose.py` (one structured summary call + deterministic
+  fallback), `report/markdown.py`, `report/memory_md.py`, pipeline `build_report` / `write_report_files` / `write_memory`.
+  Role families get an optional `label` in config.
+- **Decisions:** absent items count as 0% on days the bucket existed (the sentinel row). Otherwise a skill that disappears
+  would never show ↓. Risers use the pooled L1+L2 bucket for "at a glance".
+- **Gotcha:** two test failures came from the test helper, which reused descriptions across seeds. The store merged them
+  by description hash, which is the correct behaviour. I fixed the helper, not the code.
+- **Next:** .docx builder + Zoho email (send-test, failure email).
+
 ## 2026-11-02 — Step 5: LLM client (OpenAI) + structured extraction
 
 - **Did:** `LLMClient` ABC with `CostTracker` and budget guard; `OpenAIClient` (Responses API `responses.parse` with a

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from skillpulse.classify.classifier import LLMClassifier, classify
 from skillpulse.classify.rubric import Rubric
@@ -13,6 +15,10 @@ from skillpulse.sources.base import BANNED_DOMAINS, FetchContext, Source, Source
 from skillpulse.sources.detect import detect_employment_type, detect_work_mode
 from skillpulse.sources.matching import LocationFilter, TitleMatcher
 from skillpulse.store.base import Store
+
+if TYPE_CHECKING:
+    from skillpulse.extract.aliases import Aliases
+    from skillpulse.llm.base import LLMClient
 
 log = logging.getLogger("skillpulse.pipeline")
 
@@ -103,3 +109,42 @@ def classify_pending(store: Store, settings: Settings, rubric: Rubric, llm: LLMC
         elif row["employment_type"] not in (*settings.employment_types, "unknown"):
             store.set_status(row["id"], "skipped_employment")
     return counts
+
+
+# ----------------------------------------------------------------------------------------- reporting
+def build_report(day: str, store: Store, settings: Settings, aliases: "Aliases", llm: "LLMClient | None",
+                 run_health: dict) -> dict:
+    """Aggregate today's snapshot, persist daily aggregates, add prose. Returns the report data dict."""
+    from skillpulse.report.aggregate import aggregate_rows, build_buckets, build_report_data
+    from skillpulse.report.prose import write_prose
+
+    snapshot = store.snapshot(day, settings.cache.ttl_days)
+    store.save_daily_aggregates(day, aggregate_rows(build_buckets(snapshot, settings), aliases))
+    data = build_report_data(day, snapshot, store, settings, aliases, run_health)
+    return write_prose(data, llm)
+
+
+def write_report_files(data: dict, reports_dir: Path, docx: bool = True) -> dict[str, Path]:
+    import json
+
+    from skillpulse.report.markdown import render_markdown
+
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    day = data["date"]
+    out = {"md": reports_dir / f"{day}.md", "json": reports_dir / f"{day}.json"}
+    out["md"].write_text(render_markdown(data), encoding="utf-8")
+    out["json"].write_text(json.dumps(data, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+    if docx:
+        from skillpulse.report.docx_builder import build_docx
+
+        out["docx"] = build_docx(data, reports_dir / f"{day}.docx")
+    return out
+
+
+def write_memory(day: str, data: dict, store: Store, settings: Settings, memory_dir: Path) -> Path:
+    from skillpulse.report.memory_md import render_memory
+
+    path = memory_dir / "MEMORY.md"
+    path.write_text(render_memory(day, data, store.stats(), store.snapshot(day, settings.cache.ttl_days),
+                                  store.last_successful_run()), encoding="utf-8")
+    return path

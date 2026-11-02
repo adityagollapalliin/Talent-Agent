@@ -29,6 +29,7 @@ class Region(BaseModel):
 
 class RoleFamily(BaseModel):
     titles: list[str]
+    label: str | None = None  # display name in reports; defaults to the key in Title Case
 
 
 class ProviderModels(BaseModel):
