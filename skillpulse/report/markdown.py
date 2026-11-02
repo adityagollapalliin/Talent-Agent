@@ -11,6 +11,11 @@ def fmt_delta(d: float | None) -> str:
     return f"{d:+.1f}"
 
 
+def fmt_trend(arrow: str, d: float | None) -> str:
+    """'↑ +3.2', '= +0.4', or a single '–' when there is no baseline."""
+    return "–" if d is None else f"{arrow} {fmt_delta(d)}"
+
+
 def _table(headers: list[str], rows: list[list[Any]]) -> list[str]:
     out = ["| " + " | ".join(headers) + " |", "|" + "|".join("---" for _ in headers) + "|"]
     out += ["| " + " | ".join(str(c).replace("|", "/") for c in r) + " |" for r in rows]
@@ -18,8 +23,8 @@ def _table(headers: list[str], rows: list[list[Any]]) -> list[str]:
 
 
 def skills_rows(skills: list[dict[str, Any]]) -> list[list[Any]]:
-    return [[i + 1, s["skill"], f"{s['share']:.0f}%", f"{s['arrow7']} {fmt_delta(s['d7'])}",
-             f"{s['arrow30']} {fmt_delta(s['d30'])}"] for i, s in enumerate(skills)]
+    return [[i + 1, s["skill"], f"{s['share']:.0f}%", fmt_trend(s["arrow7"], s["d7"]),
+             fmt_trend(s["arrow30"], s["d30"])] for i, s in enumerate(skills)]
 
 
 def focus_rows(ft: list[dict[str, Any]]) -> list[list[Any]]:

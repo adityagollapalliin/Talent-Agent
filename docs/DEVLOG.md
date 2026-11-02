@@ -2,6 +2,18 @@
 
 Newest at the top. One entry per meaningful step. Move older months to `docs/devlog/DEVLOG-YYYY-MM.md`.
 
+## 2026-11-02 — Step 7: .docx builder + Zoho email (send-test, failure emails)
+
+- **Did:** `report/docx_builder.py` (title page, Heading 1/2/3 structure, real "Light Grid Accent 1" Word tables, green ↑ /
+  red ↓, clickable sample links via a raw `w:hyperlink`); `deliver/email.py` (multipart: plain + mobile HTML + .docx, Zoho
+  `SMTP_SSL` on `smtp.zoho.in:465`, retry, failure email); `pipeline.run_daily` (full orchestration with failure path) and
+  `send_test`; full CLI (`run`, `report --date`, `send-test`, `cache stats`, `backup`, `config`).
+- **Verified:** `skillpulse run --dry-run` produces md/json/docx from fixtures. Tests cover the docx structure, MIME
+  parts, the SMTP host/port/login (fake `SMTP_SSL`) and a forced mid-run crash that sends "RUN FAILED" with the last success date.
+- **Fixes:** no-baseline cells showed "– –", now a single "–". The fake LLM returns empty prose, so dry runs show the
+  deterministic numbers-based paragraphs.
+- **Next:** Greenhouse/Lever/Ashby + web search sources, Anthropic client.
+
 ## 2026-11-02 — Step 6: aggregation + markdown report
 
 - **Did:** `report/aggregate.py` (buckets, shares, 7/30-day baselines with a bucket-size sentinel, arrows, risers,

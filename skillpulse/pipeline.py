@@ -17,6 +17,7 @@ from skillpulse.sources.matching import LocationFilter, TitleMatcher
 from skillpulse.store.base import Store
 
 if TYPE_CHECKING:
+    from skillpulse.config import Paths, Secrets
     from skillpulse.extract.aliases import Aliases
     from skillpulse.llm.base import LLMClient
 
@@ -148,3 +149,137 @@ def write_memory(day: str, data: dict, store: Store, settings: Settings, memory_
     path.write_text(render_memory(day, data, store.stats(), store.snapshot(day, settings.cache.ttl_days),
                                   store.last_successful_run()), encoding="utf-8")
     return path
+
+
+# --------------------------------------------------------------------------------------- orchestration
+@dataclass
+class RunResult:
+    day: str
+    run_id: int
+    status: str
+    files: dict[str, Path] = field(default_factory=dict)
+    data: dict | None = None
+    emailed: bool = False
+
+
+def build_sources(settings: Settings, dry_run: bool) -> list[Source]:
+    from skillpulse.sources.fixtures import FixtureSource
+
+    if dry_run:
+        return [FixtureSource()]
+    from skillpulse.sources.adzuna import AdzunaSource
+
+    sources: list[Source] = [AdzunaSource()]
+    try:  # added in build step 8
+        from skillpulse.sources.aggregator import SerpApiSource
+        from skillpulse.sources.ats import AtsBoardsSource
+        from skillpulse.sources.websearch import WebSearchSource
+
+        sources += [AtsBoardsSource(), WebSearchSource(), SerpApiSource()]
+    except ImportError:
+        pass
+    return sources
+
+
+def run_daily(paths: "Paths", settings: Settings, secrets: "Secrets", *, day: str, dry_run: bool = False,
+              send_email: bool = True, memory_out: Path | None = None, subject_prefix: str = "") -> RunResult:
+    """One full run. Never leaves the owner without an email: failures send a failure email (unless dry run)."""
+    import traceback
+
+    import httpx
+
+    from skillpulse.classify.rubric import load_rubric
+    from skillpulse.deliver import email as mail
+    from skillpulse.extract.aliases import Aliases
+    from skillpulse.extract.extractor import extract_pending
+    from skillpulse.llm.factory import build_llm
+    from skillpulse.store.sqlite_store import SqliteStore
+
+    paths.ensure()
+    store = SqliteStore(paths.db)
+    run_id = store.start_run(day, dry_run)
+    result = RunResult(day=day, run_id=run_id, status="running")
+    last_ok = store.last_successful_run()
+    llm = None
+    try:
+        rubric = load_rubric(paths.memory / "LEVEL_RUBRIC.md")
+        aliases = Aliases.load(paths.memory / "skill_aliases.yaml", settings.focus_list())
+        llm = build_llm(settings, secrets, aliases, dry_run=dry_run)
+        reserve = settings.summary_reserve_usd
+        with httpx.Client(timeout=30, headers={"User-Agent": "SkillPulse/0.1 (+job-trends research)"}) as http:
+            ctx = FetchContext(settings=settings, secrets=secrets, paths=paths, store=store, http=http, llm=llm)
+            cs = collect(build_sources(settings, dry_run), ctx, day)
+        level_counts = classify_pending(
+            store, settings, rubric, lambda t, d, r: llm.classify_level(t, d, r.text, r.levels, reserve))
+        es = extract_pending(store, llm, aliases, settings.report_levels, reserve)
+        kept = cs.new + cs.cached
+        health = {
+            "sources": [s.__dict__ for s in cs.statuses],
+            "fetched": cs.fetched, "kept": kept, "new": cs.new, "cached": cs.cached,
+            "dropped": {"off_target_title": cs.off_target_title, "outside_region": cs.outside_region,
+                        "banned_domain": cs.banned_domain},
+            "cache_hit_rate": (100.0 * cs.cached / kept) if kept else 0.0,
+            "classified": level_counts,
+            "extracted": es.extracted, "extraction_cache_hits": es.cache_hits,
+            "skipped_budget": es.skipped_budget, "extract_failed": es.failed,
+            "provider": llm.provider, "budget_usd": settings.max_cost_usd_per_run,
+        }
+        data = build_report(day, store, settings, aliases, llm, health)
+        t = llm.tracker
+        health.update({"llm_calls": t.calls, "input_tokens": t.input_tokens, "output_tokens": t.output_tokens,
+                       "cost_usd": round(t.spent_usd, 5), "cost_by_model": t.by_model})
+        result.files = write_report_files(data, paths.reports)
+        result.data = data
+        store.finish_run(run_id, status="success", postings_fetched=cs.fetched, postings_new=cs.new,
+                         postings_cached=cs.cached, extracted=es.extracted, llm_calls=t.calls,
+                         input_tokens=t.input_tokens, output_tokens=t.output_tokens, cost_usd=t.spent_usd,
+                         source_status=cs.statuses)
+        write_memory(day, data, store, settings, memory_out or paths.memory)
+        result.status = "success"
+        if send_email and settings.delivery.email.enabled and not dry_run:
+            sender, _, to = mail.check_configured(secrets)
+            msg = mail.build_report_message(data, sender, to, settings.delivery.email, result.files.get("docx"),
+                                            subject_prefix)
+            mail.send(msg, settings.delivery.email, secrets)
+            result.emailed = True
+        log.info("run complete", extra={"day": day, "new": cs.new, "cached": cs.cached, "extracted": es.extracted,
+                                        "cost_usd": round(t.spent_usd, 4), "emailed": result.emailed})
+        return result
+    except Exception as e:
+        err = f"{type(e).__name__}: {e}\n\n{traceback.format_exc()}"
+        log.exception("run failed", extra={"day": day})
+        t = llm.tracker if llm else None
+        store.finish_run(run_id, status="failed", error=err[:8000],
+                         cost_usd=t.spent_usd if t else 0, llm_calls=t.calls if t else 0,
+                         input_tokens=t.input_tokens if t else 0, output_tokens=t.output_tokens if t else 0)
+        result.status = "failed"
+        if send_email and settings.delivery.email.enabled and not dry_run:
+            try:
+                sender, _, to = mail.check_configured(secrets)
+                mail.send(mail.build_failure_message(day, err, last_ok["run_date"] if last_ok else None, sender, to),
+                          settings.delivery.email, secrets)
+            except Exception:  # noqa: BLE001
+                log.exception("could not send failure email")
+        raise
+    finally:
+        store.close()
+
+
+def send_test(root: Path, settings: Settings, secrets: "Secrets", day: str) -> RunResult:
+    """Build a sample report from fixtures in a temp dir (no LLM, no real DB) and email it as [TEST]."""
+    import tempfile
+
+    from skillpulse.config import Paths
+    from skillpulse.deliver import email as mail
+
+    with tempfile.TemporaryDirectory(prefix="skillpulse-test-") as tmp:
+        t = Path(tmp)
+        paths = Paths(root=root, data=t / "data", reports=t / "reports", logs=root / "logs",
+                      memory=root / "memory", config_dir=root / "config", fixtures=root / "tests" / "fixtures")
+        res = run_daily(paths, settings, secrets, day=day, dry_run=True, send_email=False, memory_out=t)
+        sender, _, to = mail.check_configured(secrets)
+        msg = mail.build_report_message(res.data, sender, to, settings.delivery.email, res.files.get("docx"),
+                                        subject_prefix="[TEST] ")
+        mail.send(msg, settings.delivery.email, secrets)
+        res.emailed = True
+        return res

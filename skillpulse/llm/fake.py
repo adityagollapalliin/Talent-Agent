@@ -85,14 +85,10 @@ class FakeLLM(LLMClient):
         from skillpulse.report.prose import ReportProse
 
         if schema is ReportProse:
+            # Empty strings → write_prose keeps its deterministic, numbers-based paragraphs.
             payload = json.loads(text)
-            return {
-                "glance_paragraph": f"[dry run] {payload.get('glance', {}).get('total_postings', 0)} postings in the snapshot.",
-                "ideal_candidates": [
-                    {"bucket": b["bucket"], "paragraph": "[dry run] " + ", ".join(b.get("top_expectations", [])[:4])}
-                    for b in payload.get("buckets", [])
-                ],
-            }
+            return {"glance_paragraph": "",
+                    "ideal_candidates": [{"bucket": b["bucket"], "paragraph": ""} for b in payload.get("buckets", [])]}
         raise NotImplementedError(schema.__name__)
 
     def summarise(self, prompt: str, *, instructions: str = "", max_output_tokens: int = 4000) -> str:
