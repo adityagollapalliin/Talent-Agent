@@ -2,14 +2,26 @@
 
 Newest at the top. One entry per meaningful step. Move older months to `docs/devlog/DEVLOG-YYYY-MM.md`.
 
+## 2026-11-02 — Step 4: Adzuna source end to end
+
+- **Did:** `Source` Protocol + `FetchContext`, Adzuna source (Hyderabad + India remote/hybrid queries, search cache),
+  backoff/rate-limit HTTP helper, work-mode/employment detection, title→family matcher, India/Hyderabad filter,
+  `pipeline.collect()` + `classify_pending()`, fixtures (`adzuna_search.json`, 14-posting `postings_sample.json`), tests
+  including an end-to-end Adzuna run on `httpx.MockTransport`.
+- **Decisions:** the posting's own title decides the family (phrase search leaks off-target roles). Onsite roles outside
+  Hyderabad are dropped; hybrid anywhere in India is kept.
+- **Gotcha:** fixture titles "Data Science Intern" / "Staff Engineer" matched no configured title and were dropped as off-target.
+  That's correct behaviour, so I renamed the fixtures to titles that are in config.
+- **Next:** LLM client (OpenAI first) + structured extraction.
+
 ## 2026-11-02 — Step 3: level classifier + rubric + tests
 
 - **Did:** `memory/LEVEL_RUBRIC.md` (machine-readable table + rules), rubric parser, years regex parser,
   title-signal matcher, `classify()` with the LLM as a pluggable last resort. 45 classifier tests.
 - **Decisions:** the highest title signal wins; title beats years on conflict (low confidence); an unavailable LLM → None,
   so the posting is retried rather than guessed. Roman numerals and Sr/Jr are normalised so the rubric needs one spelling per signal.
-- **Failed attempt:** at first I tried "largest years_min wins" across all matches. It over-weighted "nice to have 5+ years"
-  lines, so I switched to "first match with experience context".
+- **Considered and rejected:** "largest years_min wins" across all matches. It over-weights "nice to have 5+ years"
+  lines, so the parser uses "first match with experience context".
 - **Next:** Adzuna source end to end.
 
 ## 2026-11-02 — Step 2: SQLite store + cache with dedupe

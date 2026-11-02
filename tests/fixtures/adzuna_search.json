@@ -1,0 +1,38 @@
+{
+  "__note": "Hand-built fixture in the shape of Adzuna's documented /jobs/{country}/search response (not a live capture).",
+  "count": 3,
+  "mean": 1450000,
+  "results": [
+    {
+      "id": "4901234567",
+      "title": "Software Engineer II - Backend",
+      "redirect_url": "https://www.adzuna.in/land/ad/4901234567?se=abc&utm_medium=api&utm_source=skillpulse",
+      "created": "2026-10-30T09:12:44Z",
+      "description": "We are looking for a Software Engineer II with 3-5 years of experience in Python, Django and AWS. Hybrid role based in Hyderabad. Full time, permanent position...",
+      "company": {"display_name": "Fintech Labs Pvt Ltd"},
+      "location": {"display_name": "Hyderabad, Telangana", "area": ["India", "Telangana", "Hyderabad"]},
+      "contract_time": "full_time",
+      "contract_type": "permanent",
+      "salary_min": 1800000, "salary_max": 2600000
+    },
+    {
+      "id": "4901234568",
+      "title": "Software Engineer Intern",
+      "redirect_url": "https://www.adzuna.in/land/ad/4901234568",
+      "created": "2026-10-29T05:00:00Z",
+      "description": "6-month internship for final year students. Work on Java microservices...",
+      "company": {"display_name": "CloudKart"},
+      "location": {"display_name": "Hyderabad, Telangana"}
+    },
+    {
+      "id": "4901234569",
+      "title": "Senior Sales Executive",
+      "redirect_url": "https://www.adzuna.in/land/ad/4901234569",
+      "created": "2026-10-28T05:00:00Z",
+      "description": "Sell software to enterprise customers. Work closely with our Software Engineer team...",
+      "company": {"display_name": "SaaSCo"},
+      "location": {"display_name": "Hyderabad, Telangana"},
+      "contract_time": "full_time"
+    }
+  ]
+}
