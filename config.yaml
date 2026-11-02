@@ -1,0 +1,98 @@
+# SkillPulse configuration. No titles, levels or technologies are hardcoded in code;
+# everything below is read at run time. Secrets live in .env (see .env.example).
+
+region:
+  country: "India"
+  country_code: "in"                # Adzuna country code
+  preferred_city: "Hyderabad"       # ranked first in reports
+  work_modes: ["remote", "hybrid", "onsite"]   # record all; the report highlights remote + hybrid
+  include_india_remote: true        # remote-in-India roles count even if not in Hyderabad
+  # Location strings that mean "in India" (used to filter ATS boards that list global roles)
+  india_locations: ["India", "Hyderabad", "Secunderabad", "Bengaluru", "Bangalore", "Pune",
+                    "Chennai", "Mumbai", "Gurugram", "Gurgaon", "Noida", "Delhi", "New Delhi",
+                    "Kolkata", "Ahmedabad", "Kochi", "Coimbatore", "Jaipur", "Indore", "Telangana"]
+employment_types: ["full-time"]  # "FTE" = full-time; it's a filter, not a title. No internships.
+
+# Titles are search terms grouped into role families. The report is per family x level,
+# so "SDE 2" and "Software Engineer II" land in the same bucket.
+role_families:
+  software_engineering:
+    titles: ["Software Engineer", "Software Engineer 1", "Software Engineer 2",
+             "SDE 1", "SDE 2", "Junior Software Engineer", "Senior Software Engineer",
+             "Software Development Engineer", "Backend Engineer", "Python Developer"]
+  forward_deployed_ai:
+    titles: ["AI Forward Deployed Engineer", "Forward Deployed Engineer", "FDE",
+             "Forward Deployed Software Engineer", "Applied AI Engineer",
+             "AI Solutions Engineer", "AI Deployment Engineer"]
+  machine_learning_data_science:
+    titles: ["Machine Learning Engineer", "MLE", "Associate Machine Learning Engineer",
+             "Machine Learning Associate", "Associate Data Science Engineer", "Data Scientist", "AI Engineer",
+             "GenAI Engineer", "LLM Engineer"]
+  data_analytics:
+    titles: ["Data Analyst", "Data Analyst 1", "Data Analyst 2", "Associate Data Analyst",
+             "Junior Data Analyst", "Business Intelligence Analyst", "Analytics Engineer"]
+  devops_cloud:
+    titles: ["DevOps Engineer", "DevOps Engineer 1", "DevOps Engineer 2",
+             "AWS Cloud Engineer", "AWS Cloud Engineer 1", "AWS Cloud Engineer 2",
+             "AWS Cloud Expert", "Cloud Engineer", "Site Reliability Engineer",
+             "Platform Engineer", "MLOps Engineer"]
+
+report_levels: ["L1", "L2", "L3"]   # Primary focus: L1 + L2. L3 is secondary.
+                                     # L0 (intern) and L4+ are classified, stored and counted, not detailed.
+primary_levels: ["L1", "L2"]          # shown first and in full; L3 gets a shorter section
+
+focus_technologies:          # flagged in reports; extraction still records everything
+  cloud: ["AWS", "Microsoft Azure", "Google Cloud Platform"]
+  ai_platforms: ["OpenAI", "Anthropic / Claude", "Google Gemini / Vertex AI",
+                 "Azure OpenAI / Microsoft AI", "Amazon Bedrock", "Hugging Face"]
+  data_platforms: ["Databricks", "Snowflake", "BigQuery", "Spark / PySpark", "dbt", "Airflow"]
+  languages: ["Python", "SQL"]
+  genai_tooling: ["LangChain / LangGraph", "RAG", "Vector databases", "Agents / MCP"]
+  devops: ["Docker", "Kubernetes", "Terraform", "CI/CD"]
+
+max_postings_per_title_per_run: 25
+
+llm:
+  provider: "openai"         # "openai" | "anthropic" — swappable
+  openai:
+    extraction_model: "gpt-6-luna"     # cheap model for per-JD extraction
+    summary_model: "gpt-6.1-sol"       # stronger model for the daily write-up
+    # USD per 1M tokens, used by the cost guard. Verify against the provider's pricing page.
+    pricing:
+      gpt-6-luna:  {input: 0.10, output: 0.50}
+      gpt-6.1-sol: {input: 2.00, output: 10.00}
+  anthropic:
+    extraction_model: "claude-haiku-5-5"
+    summary_model: "claude-opus-5-5"
+    pricing:
+      claude-haiku-5-5: {input: 0.10, output: 0.50}
+      claude-opus-5-5:  {input: 4.00, output: 20.00}
+max_cost_usd_per_run: 1.00
+summary_reserve_usd: 0.10    # part of the budget kept back for the daily write-up
+
+sources:                      # priority order; a failing source is logged and skipped
+  adzuna:      {enabled: true, results_per_page: 50, min_interval_s: 1.0}
+  ats_boards:  {enabled: true, companies_file: "config/companies.yaml", min_interval_s: 0.5}
+  web_search:  {enabled: true, only_if_fewer_than: 40, max_queries_per_run: 10}
+  aggregator:  {enabled: false, provider: "serpapi"}   # "serpapi" | "jsearch" (paid, optional)
+
+cache:
+  ttl_days: 45                 # expired postings stay in history, drop out of today's snapshot
+
+report:
+  top_skills: 15
+  top_skills_secondary: 10     # L3 section
+  rising_threshold_pp: 5.0     # "rising" = share grew by more than this many percentage points vs 7-day baseline
+  sample_links: 3
+
+schedule:
+  timezone: "Asia/Kolkata"
+  run_at: "06:30"            # report arrives before the workday
+
+delivery:
+  email:
+    enabled: true
+    attach_docx: true
+    html_body: true
+    smtp_host: "smtp.zoho.in"  # Zoho India data centre
+    smtp_port: 465             # SMTP_SSL
