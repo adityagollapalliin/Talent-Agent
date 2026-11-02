@@ -1,0 +1,36 @@
+{
+ "__note": "Hand-built in the shape of Greenhouse's documented GET /v1/boards/{token}/jobs?content=true (not a live capture).",
+ "jobs": [
+  {
+   "id": 7001,
+   "title": "Software Engineer II, Payments",
+   "absolute_url": "https://boards.greenhouse.io/acme/jobs/7001",
+   "updated_at": "2026-10-30T10:00:00-04:00",
+   "first_published": "2026-10-25T10:00:00-04:00",
+   "location": {
+    "name": "Hyderabad, India"
+   },
+   "content": "&lt;p&gt;We need &lt;strong&gt;3+ years of experience&lt;/strong&gt; with Python and AWS.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Kubernetes&lt;/li&gt;&lt;li&gt;Hybrid, 3 days a week in office&lt;/li&gt;&lt;/ul&gt;"
+  },
+  {
+   "id": 7002,
+   "title": "Account Executive",
+   "absolute_url": "https://boards.greenhouse.io/acme/jobs/7002",
+   "updated_at": "2026-10-30T10:00:00Z",
+   "location": {
+    "name": "Hyderabad, India"
+   },
+   "content": "&lt;p&gt;Sales.&lt;/p&gt;"
+  },
+  {
+   "id": 7003,
+   "title": "Machine Learning Engineer",
+   "absolute_url": "https://boards.greenhouse.io/acme/jobs/7003",
+   "updated_at": "2026-10-30T10:00:00Z",
+   "location": {
+    "name": "San Francisco, CA"
+   },
+   "content": "&lt;p&gt;ML.&lt;/p&gt;"
+  }
+ ]
+}

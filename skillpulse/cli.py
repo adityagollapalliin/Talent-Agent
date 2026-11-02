@@ -41,6 +41,7 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--keep", type=int, default=14)
 
     sub.add_parser("config", help="validate and print the loaded config")
+    sub.add_parser("check-boards", help="probe every board in config/companies.yaml (count of India roles)")
 
     args = p.parse_args(argv)
     settings = load_settings(__import__("pathlib").Path(args.config))
@@ -51,6 +52,31 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "config":
         print(settings.model_dump_json(indent=2))
+        return 0
+
+    if args.cmd == "check-boards":
+        import httpx
+
+        from skillpulse.config import load_companies
+        from skillpulse.models import RawPosting
+        from skillpulse.sources.ats import BOARDS
+        from skillpulse.sources.matching import LocationFilter, TitleMatcher
+        from skillpulse.util.retry import request_json
+
+        companies = load_companies(ROOT / "config" / "companies.yaml")
+        locf, matcher = LocationFilter(settings), TitleMatcher.from_settings(settings)
+        with httpx.Client(timeout=30) as http:
+            for kind, (url_t, params, parser) in BOARDS.items():
+                for co in companies.get(kind, []):
+                    try:
+                        jobs: list[RawPosting] = parser(
+                            request_json(http, "GET", url_t.format(token=co["token"]), params=params, attempts=2),
+                            co.get("name", co["token"]))
+                        india = [j for j in jobs if locf.in_india(j)]
+                        hits = [j for j in india if matcher.match(j.title)]
+                        print(f"OK    {kind:10} {co['token']:15} jobs={len(jobs):4} india={len(india):4} matching={len(hits)}")
+                    except Exception as e:  # noqa: BLE001
+                        print(f"FAIL  {kind:10} {co['token']:15} {type(e).__name__}: {str(e)[:80]}")
         return 0
 
     if args.cmd == "run":

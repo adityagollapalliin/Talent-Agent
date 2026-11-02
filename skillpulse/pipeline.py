@@ -78,6 +78,9 @@ def collect(sources: list[Source], ctx: FetchContext, today: str) -> CollectStat
             log.exception("source failed", extra={"source": src.name})
             continue
         status.fetched = len(raw)
+        warnings = getattr(src, "last_warnings", None)
+        if warnings:
+            status.error = f"partial: {len(warnings)} failed — " + "; ".join(warnings[:5])
         st.fetched += len(raw)
         for p in raw:
             reason = normalise_posting(p, matcher, locf, assume_india=getattr(src, "assume_india", False))

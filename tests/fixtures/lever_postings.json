@@ -1,0 +1,38 @@
+{
+ "__note": "Hand-built in the shape of Lever's documented GET /v0/postings/{site}?mode=json (a JSON array; not a live capture).",
+ "postings": [
+  {
+   "id": "abc-1",
+   "text": "Data Analyst",
+   "hostedUrl": "https://jobs.lever.co/acme/abc-1",
+   "createdAt": 1761800000000,
+   "workplaceType": "remote",
+   "categories": {
+    "location": "Remote - India",
+    "commitment": "Full-time",
+    "team": "Analytics"
+   },
+   "descriptionPlain": "Freshers welcome. SQL, Power BI.",
+   "lists": [
+    {
+     "text": "Requirements",
+     "content": "<li>Advanced SQL</li><li>Python (pandas)</li>"
+    }
+   ],
+   "additionalPlain": "We are an equal opportunity employer."
+  },
+  {
+   "id": "abc-2",
+   "text": "DevOps Engineer Intern",
+   "hostedUrl": "https://jobs.lever.co/acme/abc-2",
+   "createdAt": 1761800000000,
+   "workplaceType": "onsite",
+   "categories": {
+    "location": "Hyderabad",
+    "commitment": "Intern"
+   },
+   "descriptionPlain": "Internship.",
+   "lists": []
+  }
+ ]
+}

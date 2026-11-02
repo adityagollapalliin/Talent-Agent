@@ -44,6 +44,34 @@ for source in [adzuna, ats_boards, web_search, aggregator]:      # config `sourc
 - `contract_time` / `contract_type` → employment type. `created` → `posted_date`.
 - Each query key is written to `search_log`. The same query within `cache.search_repeat_hours` is not re-run.
 
+### Greenhouse / Lever / Ashby (`ats.py`)
+- Companies come from `config/companies.yaml` (`greenhouse:` / `lever:` / `ashby:` lists of `{name, token}`).
+  **The seeded tokens are unverified.** Run `uv run skillpulse check-boards` to see which respond and how many India
+  + matching roles each has.
+- Endpoints (public, unauthenticated job-board APIs):
+  `GET boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true` ·
+  `GET api.lever.co/v0/postings/{token}?mode=json` ·
+  `GET api.ashbyhq.com/posting-api/job-board/{token}`.
+- Full JDs. Greenhouse HTML is converted to text with `util/text.html_to_text`. Lever `workplaceType`/`commitment` and
+  Ashby `workplaceType`/`isRemote`/`employmentType` are used when present, with text detection as the fallback.
+- One request per board per run (`search_log` key `kind|token`). A cheap title + India pre-filter runs, then
+  `max_postings_per_title_per_run` per matched title.
+- A bad token logs a warning, and the source status shows `partial: N failed — …`. The source only fails if **every** board fails.
+
+### LLM web search (`websearch.py`)
+- Runs **only when** the earlier sources kept fewer than `sources.web_search.only_if_fewer_than` postings (default 40).
+- One query per role family (≤ `max_queries_per_run`), using the configured provider's built-in tool
+  (OpenAI `web_search` with `include=["web_search_call.action.sources"]`; Anthropic `web_search_20260209`), localised
+  to India / Hyderabad.
+- **Only results whose URL was actually returned by the search tool are kept** (compared after `normalise_url`).
+  Banned domains and search/listing-page URLs are dropped, and URLs are never fetched.
+- Uses the summary model, guarded by the cost cap. The description is the model's summary of the posting, so it's thinner than an ATS JD.
+
+### SerpApi Google Jobs (`aggregator.py`), off by default
+- `sources.aggregator.enabled: true` + `SERPAPI_API_KEY`. One query per title, located at the preferred city.
+- Uses the first apply link that is not on a banned domain. A result with only banned links (or a Google share link) is dropped.
+- JSearch is not implemented (`provider: jsearch` → skipped with a message).
+
 ## Decisions and why
 - **The posting title, not the search term, decides the family.** Adzuna's phrase search also matches descriptions,
   so a search title alone would let sales roles in.
@@ -54,10 +82,13 @@ for source in [adzuna, ats_boards, web_search, aggregator]:      # config `sourc
 ## Known limitations
 - **Adzuna descriptions are truncated snippets (~500 chars).** Years and skills past the cut-off are missed. ATS sources
   give full JDs, which is why they're priority 2. The `redirect_url` is an Adzuna landing URL and is not fetched (no scraping).
-- The Adzuna fixture (`tests/fixtures/adzuna_search.json`) is hand-built in Adzuna's documented response shape.
-  It is not a live capture, because the build sandbox could not reach the API.
+- All source fixtures (`tests/fixtures/{adzuna_search,greenhouse_jobs,lever_postings,ashby_board,serpapi_google_jobs}.json`)
+  are hand-built in each API's documented response shape. They are not live captures, because the build sandbox could not
+  reach those APIs. Re-record them from real responses when convenient.
 - ~44 titles × 2 queries = ~88 Adzuna calls/day. Check this against your Adzuna plan's daily limit, and trim titles or
   turn off the remote query if needed.
 
 ## TODOs
 - Paginate Adzuna (page 2+) for the broadest titles, if 25/title proves too few.
+- JSearch (RapidAPI) as an alternative paid aggregator.
+- More ATS types (SmartRecruiters, Workable, Workday). Many large Hyderabad employers use Workday, which has no public API.

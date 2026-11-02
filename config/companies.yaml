@@ -1,0 +1,35 @@
+# Public ATS job boards to poll (Greenhouse / Lever / Ashby). You curate this list.
+#
+# token = the board slug in the company's public job-board URL:
+#   greenhouse: boards.greenhouse.io/<token>   lever: jobs.lever.co/<token>   ashby: jobs.ashbyhq.com/<token>
+#
+# Seeded with well-known employers with India / Hyderabad engineering offices and AI-native companies hiring in India.
+# The build sandbox could not reach these APIs, so the tokens are UNVERIFIED best-known slugs.
+# Run `uv run skillpulse check-boards` to see which respond and how many India roles each has, then prune or add.
+# A wrong token only logs a warning for that board; it never fails the run.
+
+greenhouse:
+  - {name: Anthropic, token: anthropic}
+  - {name: Databricks, token: databricks}
+  - {name: Stripe, token: stripe}
+  - {name: Cloudflare, token: cloudflare}
+  - {name: MongoDB, token: mongodb}
+  - {name: Okta, token: okta}
+  - {name: Coinbase, token: coinbase}
+  - {name: GitLab, token: gitlab}
+  - {name: Elastic, token: elastic}
+  - {name: Twilio, token: twilio}
+  - {name: Rubrik, token: rubrik}
+  - {name: PhonePe, token: phonepe}
+  - {name: Postman, token: postman}
+
+lever:
+  - {name: CRED, token: cred}
+  - {name: Meesho, token: meesho}
+
+ashby:
+  - {name: OpenAI, token: openai}
+  - {name: Cohere, token: cohere}
+  - {name: Notion, token: notion}
+  - {name: Snowflake, token: snowflake}
+  - {name: Deel, token: deel}

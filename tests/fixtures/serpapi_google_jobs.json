@@ -1,0 +1,41 @@
+{
+ "__note": "Hand-built in the shape of SerpApi google_jobs results (not a live capture).",
+ "jobs_results": [
+  {
+   "title": "Cloud Engineer",
+   "company_name": "Acme",
+   "location": "Hyderabad, Telangana, India",
+   "description": "AWS, Terraform. 2+ years of experience.",
+   "detected_extensions": {
+    "schedule_type": "Full-time"
+   },
+   "apply_options": [
+    {
+     "title": "LinkedIn",
+     "link": "https://www.linkedin.com/jobs/view/1"
+    },
+    {
+     "title": "Acme Careers",
+     "link": "https://careers.acme.com/jobs/55"
+    }
+   ]
+  },
+  {
+   "title": "Data Analyst",
+   "company_name": "Beta",
+   "location": "Hyderabad, India",
+   "description": "SQL",
+   "detected_extensions": {
+    "schedule_type": "Contractor",
+    "work_from_home": true
+   },
+   "apply_options": [
+    {
+     "title": "Naukri",
+     "link": "https://www.naukri.com/job/9"
+    }
+   ],
+   "share_link": "https://www.google.com/search?ibp=htl;jobs&q=x"
+  }
+ ]
+}

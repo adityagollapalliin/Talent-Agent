@@ -2,6 +2,19 @@
 
 Newest at the top. One entry per meaningful step. Move older months to `docs/devlog/DEVLOG-YYYY-MM.md`.
 
+## 2026-11-02 — Step 8: Greenhouse/Lever/Ashby + web search sources, Anthropic client
+
+- **Did:** `sources/ats.py` (three public board APIs, per-board failure isolation reported as "partial"),
+  `sources/websearch.py` (thin-results trigger, URL must be one the search tool returned), `sources/aggregator.py`
+  (SerpApi, off by default), `llm/anthropic_client.py` (`messages.parse` for extraction at effort low; beta Messages
+  with `fallbacks="default"` for summary/web search; `web_search_20260209`; `pause_turn` loop; refusal → `LLMRefusal`),
+  `config/companies.yaml` seed + `skillpulse check-boards`. Fixtures for every API shape. 11 new tests.
+- **Decisions:** Anthropic web search asks for fenced JSON validated by Pydantic instead of `output_config.format`,
+  because citations from search results and structured outputs don't combine. Cost is priced on the model that actually
+  served (a fallback can change it).
+- **Unverified:** the board tokens in `companies.yaml`, because the sandbox can't reach the ATS APIs. Use `check-boards`.
+- **Next:** cost guard, dry-run, lock file, logging (hardening + docs).
+
 ## 2026-11-02 — Step 7: .docx builder + Zoho email (send-test, failure emails)
 
 - **Did:** `report/docx_builder.py` (title page, Heading 1/2/3 structure, real "Light Grid Accent 1" Word tables, green ↑ /

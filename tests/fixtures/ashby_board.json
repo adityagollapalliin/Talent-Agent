@@ -1,0 +1,43 @@
+{
+ "__note": "Hand-built in the shape of Ashby's documented GET /posting-api/job-board/{name} (not a live capture).",
+ "apiVersion": "1",
+ "jobs": [
+  {
+   "id": "j1",
+   "title": "Forward Deployed Engineer",
+   "location": "Bengaluru, India",
+   "secondaryLocations": [
+    {
+     "location": "Hyderabad, India"
+    }
+   ],
+   "isRemote": false,
+   "workplaceType": "Hybrid",
+   "employmentType": "FullTime",
+   "descriptionPlain": "2-4 years of experience. Python, RAG, OpenAI.",
+   "jobUrl": "https://jobs.ashbyhq.com/acme/j1",
+   "publishedAt": "2026-10-29T08:00:00.000+00:00",
+   "isListed": true
+  },
+  {
+   "id": "j2",
+   "title": "AI Engineer",
+   "location": "Remote",
+   "isRemote": true,
+   "employmentType": "FullTime",
+   "descriptionPlain": "Remote (US only).",
+   "jobUrl": "https://jobs.ashbyhq.com/acme/j2",
+   "publishedAt": "2026-10-29T08:00:00.000+00:00",
+   "isListed": true
+  },
+  {
+   "id": "j3",
+   "title": "Data Scientist",
+   "location": "Hyderabad",
+   "employmentType": "FullTime",
+   "descriptionPlain": "Unlisted",
+   "jobUrl": "https://jobs.ashbyhq.com/acme/j3",
+   "isListed": false
+  }
+ ]
+}
