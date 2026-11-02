@@ -1,0 +1,4 @@
+# Alternative to the systemd timers (cron does NOT catch up on missed runs). Install with: crontab -e  (as skillpulse)
+# Server timezone must be Asia/Kolkata (deploy/setup.sh sets it).
+30 6 * * * cd /opt/skillpulse && /home/skillpulse/.local/bin/uv run skillpulse run >> logs/cron.log 2>&1
+15 2 * * * cd /opt/skillpulse && /home/skillpulse/.local/bin/uv run skillpulse backup --keep 14 >> logs/cron.log 2>&1

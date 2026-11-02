@@ -64,7 +64,7 @@ def test_report_deltas_and_rising_end_to_end():
     # Day 2 adds 4 postings → snapshot of 8: Python 3/8 = 37.5%, Kubernetes 3/8 = 37.5% (new)
     seed(s, "2026-11-02", [ext(["Python", "Kubernetes"]), ext(["Kubernetes"]), ext(["Kubernetes"]), ext(["Go"])], start=10)
     data = build_report_data("2026-11-02", s.snapshot("2026-11-02", 45), s, S, A, {"sources": []})
-    lv = next(l for f in data["families"] if f["family"] == FAM for l in f["levels"] if l["level"] == "L2")
+    lv = next(x for f in data["families"] if f["family"] == FAM for x in f["levels"] if x["level"] == "L2")
     sk = {x["skill"]: x for x in lv["top_skills"]}
     assert lv["n"] == 8
     assert sk["Python"]["share"] == 37.5 and sk["Python"]["d7"] == -12.5 and sk["Python"]["arrow7"] == "↓"

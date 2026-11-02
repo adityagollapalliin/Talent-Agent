@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from typing import Any
 
 from skillpulse.config import load_companies
@@ -28,7 +28,7 @@ def _iso_date(v: Any) -> str | None:
         return None
     try:
         if isinstance(v, (int, float)):  # Lever: epoch ms
-            return datetime.fromtimestamp(v / 1000, tz=timezone.utc).date().isoformat()
+            return datetime.fromtimestamp(v / 1000, tz=UTC).date().isoformat()
         return datetime.fromisoformat(str(v).replace("Z", "+00:00")).date().isoformat()
     except (ValueError, OSError):
         return None

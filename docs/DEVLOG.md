@@ -2,6 +2,20 @@
 
 Newest at the top. One entry per meaningful step. Move older months to `docs/devlog/DEVLOG-YYYY-MM.md`.
 
+## 2026-11-02 — Step 10: deploy scripts, systemd timer, backups, docs
+
+- **Did:** `deploy/setup.sh` (idempotent: tz Asia/Kolkata, system user, uv, clone, `uv sync --frozen`, `.env` 600, units),
+  `deploy/update.sh`, systemd `skillpulse.{service,timer}` (06:30 IST, `Persistent=true`) and
+  `skillpulse-backup.{service,timer}` (02:15 IST, keep 14), `deploy/crontab.example`, `docs/deployment.md` with
+  "Migrating to GitHub Actions" (state files, DB persistence options, secrets, UTC schedule, example workflow).
+  Ruff clean-up (pyupgrade/bugbear) across the package.
+- **Verified:** `bash -n` on scripts; `systemd-analyze calendar` (06:30 IST → 01:00 UTC); `systemd-analyze verify`
+  on the templated units; a two-day dry run (day 2: 0 new, 12 cached, 0 LLM calls, baselines produce "=" trends).
+  116 tests pass.
+- **Not verified here (sandbox has no access):** live Adzuna/ATS/OpenAI/Anthropic/Zoho calls, the board tokens in
+  `config/companies.yaml`, OpenAI model prices. First steps on the server: `send-test`, `check-boards`, one manual run.
+- **Next (owner):** fill `.env`, curate `companies.yaml`, check OpenAI pricing in `config.yaml`, deploy.
+
 ## 2026-11-02 — Step 9: cost guard, dry-run, lock file, logging
 
 - **Did:** `fcntl` lock file (`data/skillpulse.lock`, exit code 2 if held). Tests that prove the guarantees: the dry run

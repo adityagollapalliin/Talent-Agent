@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
@@ -15,7 +15,7 @@ _RESERVED = set(vars(logging.makeLogRecord({})).keys()) | {"message", "asctime"}
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         payload = {
-            "ts": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(timespec="seconds"),
+            "ts": datetime.fromtimestamp(record.created, tz=UTC).isoformat(timespec="seconds"),
             "level": record.levelname,
             "logger": record.name,
             "msg": record.getMessage(),

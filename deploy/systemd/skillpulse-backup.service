@@ -1,0 +1,8 @@
+[Unit]
+Description=SkillPulse nightly DB backup (keeps 14)
+
+[Service]
+Type=oneshot
+User=@APP_USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@UV@ run --no-dev skillpulse backup --keep 14

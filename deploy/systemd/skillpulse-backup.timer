@@ -1,0 +1,10 @@
+[Unit]
+Description=Back up the SkillPulse DB every night at 02:15 IST
+
+[Timer]
+OnCalendar=*-*-* 02:15:00 Asia/Kolkata
+Persistent=true
+Unit=skillpulse-backup.service
+
+[Install]
+WantedBy=timers.target

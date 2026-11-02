@@ -116,7 +116,7 @@ def classify_pending(store: Store, settings: Settings, rubric: Rubric, llm: LLMC
 
 
 # ----------------------------------------------------------------------------------------- reporting
-def build_report(day: str, store: Store, settings: Settings, aliases: "Aliases", llm: "LLMClient | None",
+def build_report(day: str, store: Store, settings: Settings, aliases: Aliases, llm: LLMClient | None,
                  run_health: dict) -> dict:
     """Aggregate today's snapshot, persist daily aggregates, add prose. Returns the report data dict."""
     from skillpulse.report.aggregate import aggregate_rows, build_buckets, build_report_data
@@ -184,7 +184,7 @@ def build_sources(settings: Settings, dry_run: bool) -> list[Source]:
     return sources
 
 
-def run_daily(paths: "Paths", settings: Settings, secrets: "Secrets", *, day: str, dry_run: bool = False,
+def run_daily(paths: Paths, settings: Settings, secrets: Secrets, *, day: str, dry_run: bool = False,
               send_email: bool = True, memory_out: Path | None = None, subject_prefix: str = "") -> RunResult:
     """One full run. Never leaves the owner without an email: failures send a failure email (unless dry run)."""
     import traceback
@@ -268,7 +268,7 @@ def run_daily(paths: "Paths", settings: Settings, secrets: "Secrets", *, day: st
         store.close()
 
 
-def send_test(root: Path, settings: Settings, secrets: "Secrets", day: str) -> RunResult:
+def send_test(root: Path, settings: Settings, secrets: Secrets, day: str) -> RunResult:
     """Build a sample report from fixtures in a temp dir (no LLM, no real DB) and email it as [TEST]."""
     import tempfile
 

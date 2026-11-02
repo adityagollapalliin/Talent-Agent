@@ -132,7 +132,7 @@ class Paths:
         return self.data / "skillpulse.lock"
 
     @classmethod
-    def at(cls, root: Path, dry_run: bool = False) -> "Paths":
+    def at(cls, root: Path, dry_run: bool = False) -> Paths:
         data = root / "data"
         reports = root / "reports"
         if dry_run:  # keep fixture runs out of the real DB and report archive
@@ -165,7 +165,7 @@ class Secrets:
     serpapi_key: str | None
 
     @classmethod
-    def from_env(cls) -> "Secrets":
+    def from_env(cls) -> Secrets:
         g = lambda k: (os.environ.get(k) or "").strip() or None  # noqa: E731
         return cls(
             openai_api_key=g("OPENAI_API_KEY"),

@@ -49,8 +49,9 @@ they come from third-party listings. An unknown model is priced pessimistically 
 
 ## Known limitations
 - Snippet-only sources (Adzuna) produce thinner extractions than full ATS JDs.
-- Cost estimation is approximate (chars/3.5). The guard compares estimate + spent against the cap before each call, and
-  actual cost is recorded from the API's usage numbers.
+- Cost estimation is approximate (chars/3.5 for input) and **pessimistic for output**: it assumes the full
+  `max_output_tokens` allowance (1,500 for extraction). Very small caps can therefore block the first call even when
+  real spend would fit. Actual cost is recorded from the API's usage numbers.
 - `FakeLLM` is a crude keyword scanner. It exists so dry runs exercise the whole pipeline, not to produce good data.
 
 ## TODOs

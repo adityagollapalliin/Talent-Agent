@@ -17,7 +17,7 @@ class TitleMatcher:
     entries: list[tuple[str, str, str]]  # (normalised title, family, original title), longest first
 
     @classmethod
-    def from_settings(cls, s: Settings) -> "TitleMatcher":
+    def from_settings(cls, s: Settings) -> TitleMatcher:
         entries = [
             (normalise_title(t), fam, t) for fam, rf in s.role_families.items() for t in rf.titles
         ]

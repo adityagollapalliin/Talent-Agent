@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, UTC
 from pathlib import Path
 from typing import Any
 
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS search_log (
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+    return datetime.now(UTC).isoformat(timespec="seconds")
 
 
 class SqliteStore:
@@ -230,7 +230,7 @@ class SqliteStore:
         if not r:
             return False
         ran = datetime.fromisoformat(r["ran_at"])
-        return datetime.now(timezone.utc) - ran < timedelta(hours=within_hours)
+        return datetime.now(UTC) - ran < timedelta(hours=within_hours)
 
     def record_search(self, source: str, query_key: str, results: int) -> None:
         self.conn.execute(

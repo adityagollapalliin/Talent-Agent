@@ -32,7 +32,7 @@ class Aliases:
             self.focus_members[f] = members
 
     @classmethod
-    def load(cls, path: Path, focus: list[str]) -> "Aliases":
+    def load(cls, path: Path, focus: list[str]) -> Aliases:
         raw = yaml.safe_load(path.read_text(encoding="utf-8")) if path.exists() else {}
         raw = raw or {}
         return cls(raw.get("canonical") or {}, raw.get("focus_groups") or {}, focus)

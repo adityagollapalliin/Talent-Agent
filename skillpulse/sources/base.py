@@ -30,7 +30,7 @@ class FetchContext:
     paths: Paths
     store: Store
     http: httpx.Client
-    llm: "LLMClient | None" = None
+    llm: LLMClient | None = None
     already_fetched: int = 0  # postings gathered by earlier sources this run
     log: logging.Logger = field(default_factory=lambda: logging.getLogger("skillpulse.sources"))
 

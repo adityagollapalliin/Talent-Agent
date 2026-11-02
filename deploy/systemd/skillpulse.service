@@ -1,0 +1,18 @@
+[Unit]
+Description=SkillPulse daily job-skills report
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=@APP_USER@
+WorkingDirectory=@APP_DIR@
+Environment=TZ=Asia/Kolkata
+ExecStart=@UV@ run --no-dev skillpulse run
+# The run sends its own failure email. A non-zero exit also shows up in `systemctl --failed`.
+TimeoutStartSec=2h
+Nice=10
+# Hardening
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
