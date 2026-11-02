@@ -36,6 +36,7 @@ uv run skillpulse send-test              # sample email to REPORT_TO, to check S
 uv run skillpulse cache stats            # what's cached, hit rates, spend
 uv run skillpulse backup                 # snapshot the DB to data/backups/ (keeps 14)
 uv run skillpulse config                 # validate + print config
+uv run skillpulse check-boards           # probe config/companies.yaml board tokens (India / matching role counts)
 uv run pytest                            # tests (recorded fixtures only, never live APIs)
 ```
 

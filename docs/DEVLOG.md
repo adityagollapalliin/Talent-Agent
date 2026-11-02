@@ -2,6 +2,16 @@
 
 Newest at the top. One entry per meaningful step. Move older months to `docs/devlog/DEVLOG-YYYY-MM.md`.
 
+## 2026-11-02 — Step 9: cost guard, dry-run, lock file, logging
+
+- **Did:** `fcntl` lock file (`data/skillpulse.lock`, exit code 2 if held). Tests that prove the guarantees: the dry run
+  makes zero HTTP/SMTP calls; a priced run with a tiny budget defers extraction, keeps spend ≤ cap and still reports;
+  backoff retries 5xx but not 404; the rate limiter spaces calls; JSON logs carry extra fields and reach `logs/`.
+  Wrote `docs/architecture.md`.
+- **Gotcha:** the guard estimate includes the full `max_output_tokens` allowance, so very small caps block even the first
+  call. That's intended (pessimistic), and noted in extraction.md.
+- **Next:** deploy scripts, systemd timer, backups, deployment docs.
+
 ## 2026-11-02 — Step 8: Greenhouse/Lever/Ashby + web search sources, Anthropic client
 
 - **Did:** `sources/ats.py` (three public board APIs, per-board failure isolation reported as "partial"),
