@@ -2,6 +2,16 @@
 
 Newest at the top. One entry per meaningful step. Move older months to `docs/devlog/DEVLOG-YYYY-MM.md`.
 
+## 2026-11-02 — Step 3: level classifier + rubric + tests
+
+- **Did:** `memory/LEVEL_RUBRIC.md` (machine-readable table + rules), rubric parser, years regex parser,
+  title-signal matcher, `classify()` with the LLM as a pluggable last resort. 45 classifier tests.
+- **Decisions:** the highest title signal wins; title beats years on conflict (low confidence); an unavailable LLM → None,
+  so the posting is retried rather than guessed. Roman numerals and Sr/Jr are normalised so the rubric needs one spelling per signal.
+- **Failed attempt:** at first I tried "largest years_min wins" across all matches. It over-weighted "nice to have 5+ years"
+  lines, so I switched to "first match with experience context".
+- **Next:** Adzuna source end to end.
+
 ## 2026-11-02 — Step 2: SQLite store + cache with dedupe
 
 - **Did:** `Store` Protocol, `SqliteStore` (postings, extractions, runs, daily_aggregates, search_log), URL normalisation
