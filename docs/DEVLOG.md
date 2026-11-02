@@ -2,6 +2,18 @@
 
 Newest at the top. One entry per meaningful step. Move older months to `docs/devlog/DEVLOG-YYYY-MM.md`.
 
+## 2026-11-02 — Step 5: LLM client (OpenAI) + structured extraction
+
+- **Did:** `LLMClient` ABC with `CostTracker` and budget guard; `OpenAIClient` (Responses API `responses.parse` with a
+  Pydantic `text_format`; web search via the `web_search` tool + `include=["web_search_call.action.sources"]`);
+  `JobExtraction` schema; `skill_aliases.yaml` + `Aliases` (canonical names + focus groups); `extract_pending()`;
+  `FakeLLM` for dry runs; provider factory. Tests use a stand-in `responses` object, never the live API.
+- **Verified offline:** `JobExtraction`/`LevelAnswer` convert cleanly with `openai.lib._pydantic.to_strict_json_schema`
+  and Anthropic's `transform_schema`.
+- **Decisions:** focus-tech matches are recomputed in Python; the extraction cache is also keyed by description hash
+  (a short JD reposted under a new URL is never re-sent); budget stops mark postings `skipped_budget` for retry.
+- **Next:** aggregation + markdown report.
+
 ## 2026-11-02 — Step 4: Adzuna source end to end
 
 - **Did:** `Source` Protocol + `FetchContext`, Adzuna source (Hyderabad + India remote/hybrid queries, search cache),
